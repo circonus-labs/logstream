@@ -70,5 +70,6 @@ install:	all install-dirs
 	done
 
 clean:
+	rm -f Makefile
 	rm -f lib/logstream-cep.jar
 	rm -rf classes
