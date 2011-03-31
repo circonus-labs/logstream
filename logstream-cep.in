@@ -1,0 +1,98 @@
+#!/bin/sh
+
+set -- `getopt l:P:fj:dD: $*`
+
+JAVA=@JAVA@
+# General stuff
+JPARAMS="-Xms32m -Xmx512m -Dfile.encoding=UTF8 -XX:+UseCompressedStrings "
+# GC stuff
+JPARAMS="$JPARAMS -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
+# add this for gc info "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+JARS=
+DIRS="/ . lib @libdir@/java"
+LOGFILE=/dev/null
+PROG=com.omniti.labs.logstream.logstream
+
+for i in $*
+do
+        case $i in
+	-l)	LOGFILE=$2
+		shift 2
+		;;
+
+	-c)	CONF=$2
+		shift 2
+		;;
+
+	-P)	PIDFILE=$2
+		shift 2
+		;;
+        -f)
+                FOREGROUND=1
+                shift
+                ;;
+        -d)
+                JAVA=`echo $JAVA | sed -e 's/java$/jdb/;'`
+                JPARAMS="-sourcepath src $JPARAMS"
+                DEBUG=1
+                shift
+                ;;
+
+        -D)     DIRS="$2 $DIRS"
+                shift 2
+                ;;
+
+	-j)	JARS="$JARS $2"
+		shift 2
+		;;
+
+        --)     shift; break;;
+        esac
+done
+
+if [ -z "$CONF" ]; then
+	CONF=$1
+fi
+if [ -z "$CONF" ]; then
+	CONF=${prefix}/etc/logstream-cep.config
+fi
+
+JARS="$JARS commons-logging-1.1.1.jar esper-4.1.0.jar \
+	jetty-servlet-7.2.2.v20101205.jar jetty-util-7.2.2.v20101205.jar \
+	jetty-server-7.2.2.v20101205.jar jetty-http-7.2.2.v20101205.jar \
+	jetty-io-7.2.2.v20101205.jar jetty-security-7.2.2.v20101205.jar \
+	jetty-continuation-7.2.2.v20101205.jar \
+	json.jar log4j-1.2.15.jar logstream-cep.jar rabbitmq-client.jar \
+	commons-io-1.2.jar servlet-api-2.5.jar antlr-runtime-3.1.1.jar \
+	cglib-nodep-2.2.jar javassist-3.14.0.jar"
+
+CP=
+
+for jar in $JARS
+do
+	found=
+	for dir in $DIRS
+	do
+		if [ -r "$dir/$jar" ]; then
+			found="$dir/$jar"
+			CP="$CP:$found"
+			break
+		fi
+	done
+	if [ -z "$found" ]; then
+		echo "Cannot find $jar" 2>&1
+		exit
+	fi
+done
+if [ "$DEBUG" = "1" ]; then
+        exec $JAVA $JPARAMS -classpath $CP $PROG $CONF
+elif [ "$FOREGROUND" = "1" ]; then
+        $JAVA $JPARAMS -classpath $CP $PROG $CONF
+else
+        $JAVA $JPARAMS -classpath $CP $PROG $CONF < /dev/null > $LOGFILE 2>&1 &
+	PID=$!
+	if [ -n "$PIDFILE" ]; then
+		echo $PID > $PIDFILE
+	fi
+fi
+

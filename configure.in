@@ -1,0 +1,42 @@
+AC_INIT()
+
+AC_PROG_INSTALL
+AC_PATH_PROGS(JAVA, java)
+if test -z "$JAVA" ; then AC_MSG_ERROR([*** java required ***]); fi
+AC_PATH_PROGS(JAVAC, javac)
+if test -z "$JAVAC" ; then AC_MSG_ERROR([*** javac required ***]); fi
+AC_PATH_PROGS(JAR, jar)
+if test -z "$JAR" ; then AC_MSG_ERROR([*** jar required ***]); fi
+AC_PATH_PROGS(NODE, node)
+if test -z "$NODE" ; then AC_MSG_ERROR([*** node.js required ***]); fi
+
+SUBPREFIX="$prefix"
+if test "x$prefix" = "xNONE"; then
+	SUBPREFIX="$ac_default_prefix"
+fi
+previous="${datadir}"
+exp_datadir=`eval echo ${previous}`
+while test "$previous" != "$exp_datadir"; do
+	previous="${exp_datadir}"
+	exp_datadir=`eval echo ${previous}`
+done
+datadir=`echo ${exp_datadir} | sed "s~NONE~$SUBPREFIX~"`
+
+previous="${libdir}"
+exp_libdir=`eval echo ${previous}`
+while test "$previous" != "$exp_libdir"; do
+	previous="${exp_libdir}"
+	exp_libdir=`eval echo ${previous}`
+done
+libdir=`echo ${exp_libdir} | sed "s~NONE~$SUBPREFIX~"`
+
+AC_OUTPUT([
+Makefile
+logstream-cep/Makefile
+logstream-cep/logstream-cep
+beacon-httpd/Makefile
+beacon-httpd/beacon-httpd
+])
+
+chmod a+x logstream-cep/logstream-cep
+chmod a+x beacon-httpd/beacon-httpd

@@ -1,0 +1,5 @@
+{
+"type":"statement",
+"expression":"insert into HttpHitsURL5s select * from HttpHit",
+"depends":["c81ca59e-0347-11e0-a659-ef1d37f1d1a8"]
+}

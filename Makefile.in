@@ -1,0 +1,74 @@
+srcdir=@srcdir@
+top_srcdir=@top_srcdir@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+sysconfdir=@sysconfdir@
+localstatedir=@localstatedir@
+JAVA=@JAVA@
+JAVAC=@JAVAC@
+JAR=@JAR@
+JPARAMS=-g
+INSTALL=@INSTALL@
+
+JAVAF=src/com/omniti/labs/logstream/logstream.java \
+	src/com/omniti/labs/logstream/Engine.java \
+	src/com/omniti/labs/logstream/EngineEPLDesc.java \
+	src/com/omniti/labs/logstream/EngineException.java \
+	src/com/omniti/labs/logstream/EngineIngestorHandler.java \
+	src/com/omniti/labs/logstream/EngineListener.java \
+	src/com/omniti/labs/logstream/EngineMQ.java \
+	src/com/omniti/labs/logstream/EngineOutput.java \
+	src/com/omniti/labs/logstream/EngineQuery.java \
+	src/com/omniti/labs/logstream/EngineServer.java \
+	src/com/omniti/labs/logstream/EngineSet.java \
+	src/com/omniti/labs/logstream/EngineStatement.java \
+	src/com/omniti/labs/logstream/EngineType.java \
+	src/com/omniti/labs/logstream/EngineJSONUtil.java \
+	src/com/omniti/labs/logstream/JSONDirectory.java \
+	src/com/omniti/labs/logstream/ManipulationHandler.java \
+	src/com/omniti/labs/logstream/StringStuffs.java
+
+JARS=commons-logging-1.1.1.jar esper-4.1.0.jar \
+	jetty-servlet-7.2.2.v20101205.jar jetty-util-7.2.2.v20101205.jar \
+	jetty-server-7.2.2.v20101205.jar jetty-http-7.2.2.v20101205.jar \
+	jetty-io-7.2.2.v20101205.jar jetty-security-7.2.2.v20101205.jar \
+	jetty-continuation-7.2.2.v20101205.jar \
+	json.jar log4j-1.2.15.jar logstream-cep.jar rabbitmq-client.jar \
+	commons-io-1.2.jar servlet-api-2.5.jar antlr-runtime-3.1.1.jar \
+	cglib-nodep-2.2.jar javassist-3.14.0.jar logstream-cep.jar
+
+CP=.:../lib/commons-logging-1.1.1.jar:../lib/esper-4.1.0.jar:../lib/jetty-servlet-7.2.2.v20101205.jar:../lib/jetty-util-7.2.2.v20101205.jar:../lib/jetty-server-7.2.2.v20101205.jar:../lib/jetty-continuation-7.2.2.v20101205.jar:../lib/jetty-io-7.2.2.v20101205.jar:../lib/json.jar:../lib/log4j-1.2.15.jar:../lib/rabbitmq-client.jar:../lib/servlet-api-2.5.jar:../lib/javassist-3.14.0.jar
+
+all:	lib/logstream-cep.jar
+	@chmod a+x logstream-cep
+
+lib/logstream-cep.jar:	$(JAVAF)
+	test -d classes || mkdir classes
+	(cd src && $(JAVAC) $(JPARAMS) -cp $(CP) -d ../classes `find . -name \*.java`)
+	(cd classes && $(JAR) cf ../$@ com)
+
+install-dirs:
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(libdir)/java
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(sysconfdir)/smf
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/queries
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/types
+	chown nobody $(DESTDIR)$(localstatedir)/logstream-cep/types
+	chown nobody $(DESTDIR)$(localstatedir)/logstream-cep/queries
+
+install:	all install-dirs
+	$(INSTALL) -m 0755 logstream-cep $(DESTDIR)$(bindir)/logstream-cep
+	for file in $(JARS) ; do \
+		$(INSTALL) -m 0644 lib/$$file $(DESTDIR)$(libdir)/java/$$file ; \
+	done
+	$(INSTALL) -m 0644 logstream-cep.config $(DESTDIR)$(sysconfdir)/logstream-cep.config.sample
+	$(INSTALL) -m 0644 smf/logstream-cep.xml $(DESTDIR)$(sysconfdir)/smf/logstream-cep.xml
+	for type in hit.json event.json ; do \
+		$(INSTALL) -m 0644 ../samples/types/$$type $(DESTDIR)$(localstatedir)/logstream-cep/types/$$type ; \
+	done
+
+clean:
+	rm -f lib/logstream-cep.jar
+	rm -rf classes

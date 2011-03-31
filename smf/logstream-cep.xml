@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<service_bundle type='manifest' name='export'>
+  <service name='logstream/cep' type='service' version='0'>
+    <create_default_instance enabled='true'/>
+    <single_instance/>
+    <dependency name='network' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/milestone/network:default'/>
+    </dependency>
+    <dependency name='config-file' grouping='require_all' restart_on='refresh' type='path'>
+      <service_fmri value='file://localhost/opt/circonus/etc/logstream-cep.config'/>
+    </dependency>
+    <dependency name='logstream-cep_multi-user-server' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/milestone/multi-user-server'/>
+    </dependency>
+    <method_context working_directory='/opt/circonus/etc'>
+      <method_environment>
+        <envvar name='HOME' value='/opt/circonus/etc'/>
+      </method_environment>
+    </method_context>
+    <exec_method name='start' type='method' exec='/opt/circonus/bin/logstream-cep' timeout_seconds='60'>
+      <method_context>
+        <method_credential user='nobody' group='nobody'/>
+      </method_context>
+    </exec_method>
+    <exec_method name='stop' type='method' exec=':kill' timeout_seconds='60'>
+      <method_context>
+        <method_credential user='nobody' group='nobody'/>
+      </method_context>
+    </exec_method>
+    <stability value='Evolving'/>
+    <template>
+      <common_name>
+        <loctext xml:lang='C'>Cironcus logstream CEP daemon</loctext>
+      </common_name>
+      <documentation>
+        <manpage title='logstream-cep' section='8'/>
+      </documentation>
+    </template>
+  </service>
+</service_bundle>
