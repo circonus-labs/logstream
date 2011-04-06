@@ -4,10 +4,18 @@ set -- `getopt l:P:fj:dD: $*`
 
 JAVA=@JAVA@
 # General stuff
-JPARAMS="-Xms32m -Xmx512m -Dfile.encoding=UTF8 -XX:+UseCompressedStrings "
-# GC stuff
-JPARAMS="$JPARAMS -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
-# add this for gc info "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+if [ -z "$JPARAMS_MEM" ]; then
+    JPARAMS_MEM="-Xms32m -Xmx512m"
+fi
+if [ -z "$JPARAMS_OPTS" ]; then
+    JPARAMS_OPTS="-Dfile.encoding=UTF8 -XX:+UseCompressedStrings"
+fi
+if [ -z "$JPARAMS_GC" ]; then
+    JPARAMS_GC="-XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
+fi
+if [ -z "$JPARAMS" ]; then
+    JPARAMS="$JPARAMS_MEM $JPARAMS_OPTS $JPARAMS_GC"
+fi
 JARS=
 DIRS="/ . lib @libdir@/java"
 LOGFILE=/dev/null
