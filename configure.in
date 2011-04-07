@@ -30,6 +30,14 @@ while test "$previous" != "$exp_libdir"; do
 done
 libdir=`echo ${exp_libdir} | sed "s~NONE~$SUBPREFIX~"`
 
+previous="${sysconfdir}"
+exp_sysconfdir=`eval echo ${previous}`
+while test "$previous" != "$exp_sysconfdir"; do
+	previous="${exp_sysconfdir}"
+	exp_sysconfdir=`eval echo ${previous}`
+done
+sysconfdir=`echo ${exp_sysconfdir} | sed "s~NONE~$SUBPREFIX~"`
+
 AC_OUTPUT([
 Makefile
 logstream-cep/Makefile
