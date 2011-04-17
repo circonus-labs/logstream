@@ -1,4 +1,4 @@
 {
 "type":"query",
-"expression":"select irstream url, count(*) from HttpHit.win:time(5 seconds) group by url output snapshot every 1 second"
+"expression":"select irstream url, count(*) from hit.win:time(5 seconds) group by url output snapshot every 1 second"
 }

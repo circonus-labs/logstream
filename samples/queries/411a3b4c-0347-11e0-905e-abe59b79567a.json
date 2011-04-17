@@ -1,4 +1,4 @@
 {
   "type": "statement",
-  "expression": "create window HttpHits5s.win:time(5 seconds) as HttpHit"
+  "expression": "create window HttpHits5s.win:time(5 seconds) as hit"
 }

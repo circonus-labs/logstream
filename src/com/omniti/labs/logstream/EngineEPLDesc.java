@@ -42,8 +42,12 @@ public class EngineEPLDesc {
                              HashMap<UUID,EngineEPLDesc> m) {
     if(o.seen) return;
     if(o.depends != null)
-      for (UUID s : o.depends)
+      for (UUID s : o.depends) {
+        EngineEPLDesc dep = m.get(s);
+        if(dep == null)
+          throw new RuntimeException("no such statement: " + s);
         dfs_add(a, m.get(s), m);
+      }
     if(o.seen) return;
     a.add(o);
   }
