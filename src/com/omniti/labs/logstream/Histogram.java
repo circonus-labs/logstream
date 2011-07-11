@@ -3,6 +3,7 @@ package com.omniti.labs.logstream;
 public class Histogram {
     public static double getLogLinBin (Double val) {
         if ( val == null ) return 0;
+        if ( val < 0 ) return -1;
         try {
             double vlog10 = Math.log10(val);
             double vpow10 = Math.pow(10, Math.floor(vlog10));
