@@ -13,6 +13,7 @@ import com.omniti.labs.logstream.EngineSet;
 import com.omniti.labs.logstream.EngineListener;
 import com.omniti.labs.logstream.EngineEPLDesc;
 import com.omniti.labs.logstream.EngineType;
+import com.omniti.labs.logstream.Histogram;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +54,7 @@ public class Engine {
     esperConfig.addImport("java.math.*");
     esperConfig.addImport("java.text.*");
     esperConfig.addImport("java.util.*");
+    esperConfig.addImport("com.omniti.labs.logstream.Histogram");
     epService = EPServiceProviderManager.getProvider("logstream", esperConfig);
     epService.initialize();
     for(String s : esperConfig.getImports()) {
