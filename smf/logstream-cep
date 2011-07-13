@@ -1,0 +1,32 @@
+#!/bin/sh
+case "$1" in
+  start)
+        echo "Starting CEP"
+        if [ -e "/opt/circonus/var/logstream-cep/cep.pid" ]; then
+            echo "CEP already running with PID " `cat /opt/circonus/var/logstream-cep/cep.pid`
+        else
+            /opt/circonus/bin/logstream-cep -P /opt/circonus/var/logstream-cep/cep.pid
+        fi
+        ;; 
+  stop) 
+        echo "Stopping CEP"
+        cat /opt/circonus/var/logstream-cep/cep.pid | xargs kill
+        if [ 0 = $? ]; then
+            rm /opt/circonus/var/logstream-cep/cep.pid
+        else
+            echo "Error stopping CEP"
+        fi
+        ;; 
+  restart) 
+        echo "Restarting CEP"
+        cat /opt/circonus/var/logstream-cep/cep.pid | xargs kill
+        if [ 0 = $? ]; then
+            rm /opt/circonus/var/logstream-cep/cep.pid
+            /opt/circonus/bin/logstream-cep -P /opt/circonus/var/logstream-cep/cep.pid
+        fi
+        ;; 
+  *) 
+        echo "Usage: cep {start|stop|restart}" >&2 
+        exit 3 
+        ;; 
+esac
