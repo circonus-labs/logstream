@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.apache.log4j.Logger;
 
 public class Engine {
   private Configuration esperConfig;
@@ -29,10 +30,11 @@ public class Engine {
   private HashMap<String,Class> typeclasses;
   private LinkedBlockingQueue<EngineOutput> queue;
   private EngineMQ enginemq;
+  static Logger logger = Logger.getLogger(Engine.class.getName());
 
   public class Catcher implements UnmatchedListener {
     public void update(EventBean e) {
-      System.err.println(e.getEventType().getName() + " fell through the cracks");
+      logger.error(e.getEventType().getName() + " fell through the cracks");
     }
   }
 
@@ -58,7 +60,7 @@ public class Engine {
     epService = EPServiceProviderManager.getProvider("logstream", esperConfig);
     epService.initialize();
     for(String s : esperConfig.getImports()) {
-      System.err.println("Esper importing: "+s);
+      logger.info("Esper importing: "+s);
     }
     //Use this for debugging
     //epService.getEPRuntime().setUnmatchedListener(new Catcher());
@@ -97,7 +99,7 @@ public class Engine {
   }
 
   public void registerType(String typename, Map<String, EngineType> desc) throws javassist.CannotCompileException {
-    System.out.println("registering type " + typename);
+    logger.info("registering type " + typename);
     Class clazz = EngineType.makeEsperType(typename, desc);
     types.put(typename, desc);
     typeclasses.put(typename, clazz);
@@ -126,12 +128,12 @@ public class Engine {
   public UUID registerQuery(EngineEPLDesc desc) throws EngineException {
     if(desc.uuid == null) desc.uuid = UUID.randomUUID();
     queries.deregister(desc.uuid);
-    System.out.println("registering query " + desc.uuid);
+    logger.info("registering query " + desc.uuid);
     try {
       EngineQuery q = new EngineQuery(this,desc);
       queries.register(q);
       q.setListener(new EngineListener(this,desc.uuid,"data",q.getStatement(),queue));
-      System.out.println("registered.");
+      logger.info("registered.");
     }
     catch(Exception e) { throw new EngineException(e); }
     return desc.uuid;
@@ -142,10 +144,10 @@ public class Engine {
   public UUID registerStatement(EngineEPLDesc desc) throws EngineException {
     if(desc.uuid == null) desc.uuid = UUID.randomUUID();
     statements.deregister(desc.uuid);
-    System.out.println("registering statement " + desc.uuid);
+    logger.info("registering statement " + desc.uuid);
     try {
       statements.register(new EngineStatement(this,desc));
-      System.out.println("registered.");
+      logger.info("registered.");
     }
     catch(Exception e) { throw new EngineException(e); }
     return desc.uuid;

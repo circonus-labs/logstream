@@ -8,6 +8,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.AMQP.BasicProperties;
+import org.apache.log4j.Logger;
 
 public class EngineMQ {
   private String exchangeName;
@@ -19,6 +20,7 @@ public class EngineMQ {
   private ConnectionFactory factory;
   private Connection conn;
   private Channel channel;
+  static Logger logger = Logger.getLogger(EngineMQ.class.getName());
 
   public EngineMQ(Map<String,String> config) {
     host = config.get("host");
@@ -36,8 +38,10 @@ public class EngineMQ {
     factory.setPassword(password);
     factory.setVirtualHost(virtualHost);
     factory.setRequestedHeartbeat(0);
+    logger.info("connection info: " + host + ":" + port + " " + exchangeName);
   }
   public void connect() {
+    logger.info("connecting...");
     try {
       conn = factory.newConnection();
       channel = conn.createChannel();
@@ -48,6 +52,7 @@ public class EngineMQ {
       conn = null;
       channel = null;
     }
+    logger.info("connected");
   }
   public void publish(EngineOutput o) {
     if(conn == null) connect();

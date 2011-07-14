@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.lang.reflect.Field;
 import com.omniti.labs.logstream.EngineType;
 import com.omniti.labs.logstream.StringStuffs;
+import org.apache.log4j.Logger;
 
 public class EngineJSONUtil {
+  static Logger logger = Logger.getLogger(EngineJSONUtil.class.getName());
   static Map<String,EngineType> convertJSONtoType(JSONObject o) 
                             throws JSONException {
     HashMap<String,EngineType> typemap = new HashMap<String,EngineType>();
@@ -44,7 +46,7 @@ public class EngineJSONUtil {
             StringStuffs.putOnce((String)v);
           }
         }
-      } catch(Exception e) {System.err.println(e);}
+      } catch(Exception e) {logger.error(e);}
     }
   }
   static Object convertJSONtoObject(Class c, Map<String,EngineType> typeinfo,
@@ -64,7 +66,7 @@ public class EngineJSONUtil {
             f.set(obj, null);
         }
         catch(java.lang.NoSuchFieldException nsfe) {
-          System.err.println(key + ": " + nsfe);
+          logger.error(key + ": " + nsfe);
         }
       }
     }

@@ -16,8 +16,10 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import com.omniti.labs.logstream.Engine;
 import com.omniti.labs.logstream.EngineType;
+import org.apache.log4j.Logger;
 
 public class EngineIngestorHandler extends AbstractHandler {
+  static Logger logger = Logger.getLogger(EngineIngestorHandler.class.getName());
   Engine engine;
   EngineIngestorHandler(Engine e) {
     engine = e;
@@ -45,7 +47,7 @@ public class EngineIngestorHandler extends AbstractHandler {
                      HttpServletRequest request,
                      HttpServletResponse response) {
     try { request.setCharacterEncoding("UTF8"); }
-    catch(Exception e) { System.err.println(e); }
+    catch(Exception e) { logger.error(e); }
 
     if(!target.startsWith("/ingest/") ||
        !request.getMethod().equals("PUT")) return;

@@ -9,8 +9,10 @@ import com.omniti.labs.logstream.EngineMQ;
 import com.omniti.labs.logstream.EngineJSONUtil;
 import com.omniti.labs.logstream.JSONDirectory;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 public class logstream {
+  static Logger logger = Logger.getLogger(logstream.class.getName());
   Engine engine;
 
   public logstream() {
@@ -46,7 +48,7 @@ public class logstream {
     for(EngineEPLDesc d : EngineEPLDesc.order(m.toArray(new EngineEPLDesc[] { null }))) {
       try { engine.registerStatement(d); }
       catch (EngineException e) {
-        System.err.println(e);
+        logger.error(e);
       }
     }
   }
@@ -59,7 +61,7 @@ public class logstream {
       if(desc.type.equals("query")) {
         try { engine.registerQuery(desc); }
         catch (EngineException e) {
-          System.err.println(e);
+          logger.error(e);
         }
       }
     }

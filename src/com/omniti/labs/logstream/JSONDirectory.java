@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
+import org.apache.log4j.Logger;
 
 public class JSONDirectory {
+  static Logger logger = Logger.getLogger(JSONDirectory.class.getName());
   private HashMap<String,JSONObject> objects;
 
   public static FilenameFilter filter(final String init_end) {
@@ -48,7 +50,7 @@ public class JSONDirectory {
         String typename = file.getName().replace(".json", "");
         objects.put(typename, json);
       } catch(Exception e) {
-        System.err.println(file.getName());
+        logger.error(file.getName());
         e.printStackTrace();
       }
     }
