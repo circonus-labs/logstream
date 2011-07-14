@@ -52,6 +52,7 @@ lib/logstream-cep.jar:	$(JAVAF)
 install-dirs:
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(libdir)/java
+	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(sysconfdir)/logstream-cep
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(sysconfdir)/smf
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/queries
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/types
@@ -63,7 +64,8 @@ install:	all install-dirs
 	for file in $(JARS) ; do \
 		$(INSTALL) -m 0644 lib/$$file $(DESTDIR)$(libdir)/java/$$file ; \
 	done
-	$(INSTALL) -m 0644 logstream-cep.config $(DESTDIR)$(sysconfdir)/logstream-cep.config.sample
+	$(INSTALL) -m 0644 logstream-cep.config $(DESTDIR)$(sysconfdir)/logstream-cep/logstream-cep.config.sample
+	$(INSTALL) -m 0644 log4j.xml $(DESTDIR)$(sysconfdir)/logstream-cep/log4j.xml
 	$(INSTALL) -m 0644 smf/logstream-cep.xml $(DESTDIR)$(sysconfdir)/smf/logstream-cep.xml
 	for type in hit.json event.json ; do \
 		$(INSTALL) -m 0644 ../samples/types/$$type $(DESTDIR)$(localstatedir)/logstream-cep/types/$$type ; \

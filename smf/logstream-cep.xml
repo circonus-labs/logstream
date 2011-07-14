@@ -13,9 +13,9 @@
     <dependency name='logstream-cep_multi-user-server' grouping='require_all' restart_on='none' type='service'>
       <service_fmri value='svc:/milestone/multi-user-server'/>
     </dependency>
-    <method_context working_directory='/opt/circonus/etc'>
+    <method_context working_directory='/opt/circonus/etc/logstream-cep'>
       <method_environment>
-        <envvar name='HOME' value='/opt/circonus/etc'/>
+        <envvar name='HOME' value='/opt/circonus/etc/logstream-cep'/>
       </method_environment>
     </method_context>
     <exec_method name='start' type='method' exec='/opt/circonus/bin/logstream-cep' timeout_seconds='60'>

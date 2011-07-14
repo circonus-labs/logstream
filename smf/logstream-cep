@@ -1,28 +1,36 @@
 #!/bin/sh
+
+BASE_DIR=/opt/circonus
+LOGCEP_DIR=$BASE_DIR/etc/logstream-cep
+LOGCEP_BIN=$BASE_DIR/bin/logstream-cep
+PIDFILE=$BASE_DIR/var/logstream-cep/logstream-cep.pid
+
 case "$1" in
   start)
         echo "Starting logstream-cep"
-        if [ -e "/opt/circonus/var/logstream-cep/logstream-cep.pid" ]; then
-            echo "logstream-cep already running with PID " `cat /opt/circonus/var/logstream-cep/logstream-cep.pid`
+        if [ -e "$PIDFILE" ]; then
+            echo "logstream-cep already running with PID " `cat $PIDFILE`
         else
-            /opt/circonus/bin/logstream-cep -P /opt/circonus/var/logstream-cep/logstream-cep.pid
+            cd $LOGCEP_DIR
+            $LOGCEP_BIN -P $PIDFILE
         fi
         ;; 
   stop) 
         echo "Stopping logstream-cep"
-        cat /opt/circonus/var/logstream-cep/logstream-cep.pid | xargs kill
+        cat $PIDFILE | xargs kill
         if [ 0 = $? ]; then
-            rm /opt/circonus/var/logstream-cep/logstream-cep.pid
+            rm $PIDFILE
         else
             echo "Error stopping logstream-cep"
         fi
         ;; 
   restart) 
         echo "Restarting logstream-cep"
-        cat /opt/circonus/var/logstream-cep/logstream-cep.pid | xargs kill
+        cat $PIDFILE | xargs kill
         if [ 0 = $? ]; then
-            rm /opt/circonus/var/logstream-cep/logstream-cep.pid
-            /opt/circonus/bin/logstream-cep -P /opt/circonus/var/logstream-cep/logstream-cep.pid
+            cd $LOGCEP_DIR
+            rm $PIDFILE
+            $LOGCEP_BIN -P $PIDFILE
         fi
         ;; 
   *) 

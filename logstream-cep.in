@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -- `getopt l:P:fj:dD: $*`
+set -- `getopt l:c:P:fj:dD: $*`
 
 JAVA=@JAVA@
 # General stuff
@@ -64,7 +64,7 @@ if [ -z "$CONF" ]; then
     CONF=$1
 fi
 if [ -z "$CONF" ]; then
-    CONF=@sysconfdir@/logstream-cep.config
+    CONF=@sysconfdir@/logstream-cep/logstream-cep.config
 fi
 
 JARS="$JARS commons-logging-1.1.1.jar esper-4.1.0.jar \
