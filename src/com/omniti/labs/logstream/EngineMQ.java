@@ -11,19 +11,20 @@ import com.rabbitmq.client.AMQP.BasicProperties;
 import org.apache.log4j.Logger;
 
 public class EngineMQ {
+  private int cidx;
   private String exchangeName;
-  private String host;
+  private String hosts[];
   private Integer port;
   private String user;
   private String password;
   private String virtualHost;
-  private ConnectionFactory factory;
+  private ConnectionFactory factory[];
   private Connection conn;
   private Channel channel;
   static Logger logger = Logger.getLogger(EngineMQ.class.getName());
 
   public EngineMQ(Map<String,String> config) {
-    host = config.get("host");
+    String host = config.get("host");
     port = new Integer(config.get("port"));
     exchangeName = config.get("exchange");
     if(exchangeName == null) exchangeName = "amq.topic";
@@ -31,19 +32,26 @@ public class EngineMQ {
     if(virtualHost == null) virtualHost = "/";
     user = config.get("user");
     password = config.get("password");
-    factory = new ConnectionFactory();
-    factory.setHost(host);
-    factory.setPort(port);
-    factory.setUsername(user);
-    factory.setPassword(password);
-    factory.setVirtualHost(virtualHost);
-    factory.setRequestedHeartbeat(0);
+    hosts = host.split(",");
+    factory = new ConnectionFactory[hosts.length];
+    for(int i = 0; i < hosts.length; i++) {
+      hosts[i] = hosts[i].replace("\"", ""); //.replace("\"]?$", "");
+      factory[i] = new ConnectionFactory();
+      factory[i].setHost(hosts[i]);
+      factory[i].setPort(port);
+      factory[i].setUsername(user);
+      factory[i].setPassword(password);
+      factory[i].setVirtualHost(virtualHost);
+      factory[i].setRequestedHeartbeat(0);
+    }
+    connect();
     logger.info("connection info: " + host + ":" + port + " " + exchangeName);
   }
   public void connect() {
     logger.info("connecting...");
     try {
-      conn = factory.newConnection();
+      cidx = (cidx + 1) % factory.length;
+      conn = factory[cidx].newConnection();
       channel = conn.createChannel();
     }
     catch(IOException e) {
