@@ -21,7 +21,8 @@ public class EngineType {
   public Object makeValue(String in) {
     Object r = null;
     try {
-      r = con.newInstance((Object)in);
+      if(type == String.class) r = in.intern();
+      else r = con.newInstance((Object)in);
     }
     catch(java.lang.InstantiationException ie) { }
     catch(java.lang.IllegalAccessException iae) { }

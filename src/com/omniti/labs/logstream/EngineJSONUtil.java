@@ -2,14 +2,22 @@ package com.omniti.labs.logstream;
 
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import com.omniti.labs.logstream.EngineType;
-import com.omniti.labs.logstream.StringStuffs;
 import org.apache.log4j.Logger;
 
 public class EngineJSONUtil {
+
+  static public class MalformedEngineJSON extends Exception {
+    public MalformedEngineJSON(String e) { super(e); }
+  }
+
   static Logger logger = Logger.getLogger(EngineJSONUtil.class.getName());
   static Map<String,EngineType> convertJSONtoType(JSONObject o) 
                             throws JSONException {
@@ -35,19 +43,33 @@ public class EngineJSONUtil {
     }
     return typemap;
   }
-  static public class RefMap<K,V> extends HashMap<K,V> {
-    RefMap() { super(); }
-    protected void finalize() {
-      int cnt = 0;
-      try{
-        for (V v : values()) {
-          if(v != null && v.getClass() == String.class) {
-            cnt++;
-            StringStuffs.putOnce((String)v);
-          }
+  static Object convertJsonParsertoObject(Class c, Map<String,EngineType> typeinfo,
+                                          JsonParser p) throws MalformedEngineJSON, IOException {
+    Object obj = null;
+    try {
+      JsonToken tok;
+      if(p.getCurrentToken() != JsonToken.START_OBJECT)
+        throw new MalformedEngineJSON("Bad token: " + p.getCurrentToken());
+      obj = c.newInstance();
+      while(p.nextToken() != JsonToken.END_OBJECT) {
+        String fieldname = p.getCurrentName();
+        p.nextToken();
+        try {
+          EngineType et = typeinfo.get(fieldname);
+          Field f = c.getField(fieldname);
+          if(f != null && et != null) f.set(obj, et.makeValue(p.getText()));
         }
-      } catch(Exception e) {logger.error(e);}
+        catch(java.lang.NoSuchFieldException nsfe) {
+          logger.info(fieldname + ": " + nsfe);
+        }
+      }
+      p.nextToken();
     }
+    catch(java.lang.InstantiationException ie) {
+    }
+    catch(java.lang.IllegalAccessException iae) {
+    }
+    return obj;
   }
   static Object convertJSONtoObject(Class c, Map<String,EngineType> typeinfo,
                                                 JSONObject o) {
@@ -75,25 +97,6 @@ public class EngineJSONUtil {
     catch(java.lang.IllegalAccessException iae) {
     }
     return obj;
-  }
-  static Map<String,Object> convertJSONtoMap(Map<String,EngineType> typeinfo,
-                                             JSONObject o)
-                            throws JSONException {
-    Map<String,Object> out = new RefMap<String,Object>();
-    for(String key : typeinfo.keySet()) {
-      EngineType et = typeinfo.get(key);
-      Class expect = (et != null) ? et.getType() : null;
-      if(expect == String.class) {
-        if(o.has(key))
-          out.put(key, StringStuffs.getOnce(o.optString(key)));
-        else
-          out.put(key, null);
-      }
-      else if(expect == Double.class)  out.put(key, o.has(key)?o.optDouble(key):null);
-      else if(expect == Long.class)  out.put(key, o.has(key)?o.optLong(key):null);
-      else throw new JSONException("Uknown type at runtime!");
-    }
-    return out;
   }
   static Map<String,String> convertJSONtoDict(JSONObject o)
                             throws JSONException {

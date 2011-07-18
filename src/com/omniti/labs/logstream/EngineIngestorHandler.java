@@ -1,6 +1,7 @@
 package com.omniti.labs.logstream;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Map;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -12,6 +13,11 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONStringer;
+
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import com.omniti.labs.logstream.Engine;
@@ -21,25 +27,33 @@ import org.apache.log4j.Logger;
 public class EngineIngestorHandler extends AbstractHandler {
   static Logger logger = Logger.getLogger(EngineIngestorHandler.class.getName());
   Engine engine;
+  JsonFactory factory;
+
   EngineIngestorHandler(Engine e) {
     engine = e;
+    factory = new JsonFactory();
   }
   public int ingestObject(String type, Class c, Map<String,EngineType> typeinfo,
-                          JSONObject o) throws JSONException {
+                          JsonParser p) throws IOException,
+                                               EngineJSONUtil.MalformedEngineJSON {
     Object out;
-    out = EngineJSONUtil.convertJSONtoObject(c, typeinfo, o);
+    out = EngineJSONUtil.convertJsonParsertoObject(c, typeinfo, p);
     engine.sendEvent(out);
     return 1;
   }
   public int ingestArray(String type, Class c, Map<String,EngineType> typeinfo,
-                         JSONArray a) {
-    int i, count = 0, len = a.length();
-    for(i = 0; i < len; i++) {
-      JSONObject o = a.optJSONObject(i);
-      if(o != null) try { count += ingestObject(type, c, typeinfo, o); }
-                    catch (Exception e) { }
-                    // don't do anything in array context
+                         JsonParser p) {
+    int count = 0;
+    try {
+      if(p.getCurrentToken() != JsonToken.START_ARRAY) return 0;
+      p.nextToken();
+      while(p.getCurrentToken() != JsonToken.END_ARRAY) {
+        count += ingestObject(type, c, typeinfo, p);
+      }
+      p.nextToken();
     }
+    catch(IOException e) { logger.error(e); }
+    catch(EngineJSONUtil.MalformedEngineJSON je) { logger.error(je); }
     return count;
   }
   public void handle(String target,
@@ -67,33 +81,27 @@ public class EngineIngestorHandler extends AbstractHandler {
         return;
       }
       BufferedReader br = request.getReader();
-      while(true) {
-        String line = br.readLine();
-        if(line == null) break;
-        all = all + line;
-      }
+      JsonParser parser = factory.createJsonParser(br);
       try {
-        JSONObject obj = new JSONObject(all);
-        ingested = ingestObject(type, c, typeinfo, obj);
+        JsonToken start = parser.nextToken();
+        if(start == JsonToken.START_OBJECT) {
+          try {
+            ingested = ingestObject(type, c, typeinfo, parser);
+          }
+          catch(IOException e) { logger.error(e); }
+          catch(EngineJSONUtil.MalformedEngineJSON je) { logger.error(je); }
+        }
+        else if(start == JsonToken.START_ARRAY) {
+          ingested = ingestArray(type, c, typeinfo, parser);
+        }
+        else {
+          throw new java.lang.RuntimeException("invalid JSON start sequence");
+        }
       }
       catch(Exception e) {
-        if(e.getMessage().equals("A JSONObject text must begin with '{' at character 1")) {
-          e = null;
-          try {
-            JSONArray arr = new JSONArray(all);
-            ingested = ingestArray(type, c, typeinfo, arr);
-          }
-          catch(Exception ie) { e = ie; };
-        }
-        if(e != null) {
-          response.setStatus(500);
-          o.print(new JSONStringer().object()
-                                    .key("error")
-                                    .value(e.getMessage())
-                                    .endObject().toString());
-          return;
-        }
+        logger.error(e);
       }
+      parser.close();
       o.print("{ 'ingested': " + ingested + " }");
     } catch(Exception e) {}
   }
