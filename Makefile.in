@@ -11,6 +11,7 @@ JAVAC=@JAVAC@
 JAR=@JAR@
 JPARAMS=-g
 INSTALL=@INSTALL@
+NOBODY_USER=nobody
 
 JAVAF=src/com/omniti/labs/logstream/logstream.java \
 	src/com/omniti/labs/logstream/Engine.java \
@@ -55,8 +56,8 @@ install-dirs:
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(sysconfdir)/smf
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/queries
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(localstatedir)/logstream-cep/types
-	chown nobody $(DESTDIR)$(localstatedir)/logstream-cep/types
-	chown nobody $(DESTDIR)$(localstatedir)/logstream-cep/queries
+	chown $(NOBODY_USER) $(DESTDIR)$(localstatedir)/logstream-cep/types
+	chown $(NOBODY_USER) $(DESTDIR)$(localstatedir)/logstream-cep/queries
 
 install:	all install-dirs
 	$(INSTALL) -m 0755 logstream-cep $(DESTDIR)$(bindir)/logstream-cep
