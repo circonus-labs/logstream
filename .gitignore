@@ -1,0 +1,11 @@
+autom4te.cache/
+beacon-httpd/b.js
+beacon-httpd/b.js.gz
+beacon-httpd/beacon-httpd
+config.log
+config.status
+configure
+logstream-cep/classes/
+logstream-cep/lib/logstream-cep.jar
+logstream-cep/logstream-cep
+Makefile
