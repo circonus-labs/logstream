@@ -39,7 +39,7 @@ JARS=commons-logging-1.1.1.jar esper-4.1.0.jar \
 	commons-io-1.2.jar servlet-api-2.5.jar antlr-runtime-3.1.1.jar \
 	cglib-nodep-2.2.jar javassist-3.14.0.jar logstream-cep.jar
 
-CP=.:../lib/commons-logging-1.1.1.jar:../lib/esper-4.1.0.jar:../lib/jetty-servlet-7.2.2.v20101205.jar:../lib/jetty-util-7.2.2.v20101205.jar:../lib/jetty-server-7.2.2.v20101205.jar:../lib/jetty-continuation-7.2.2.v20101205.jar:../lib/jetty-io-7.2.2.v20101205.jar:../lib/jackson-core-asl-1.8.3.jar:../lib/json.jar:../lib/log4j-1.2.15.jar:../lib/rabbitmq-client-2.4.1.jar:../lib/servlet-api-2.5.jar:../lib/javassist-3.14.0.jar
+CP=.:../lib/commons-logging-1.1.1.jar:../lib/esper-4.1.0.jar:../lib/jetty-servlet-7.2.2.v20101205.jar:../lib/jetty-util-7.2.2.v20101205.jar:../lib/jetty-server-7.2.2.v20101205.jar:../lib/jetty-continuation-7.2.2.v20101205.jar:../lib/jetty-io-7.2.2.v20101205.jar:../lib/jackson-core-asl-1.8.3.jar:../lib/log4j-1.2.15.jar:../lib/rabbitmq-client-2.4.1.jar:../lib/servlet-api-2.5.jar:../lib/javassist-3.14.0.jar:/opt/circonus/lib/java/json.jar
 
 all:	lib/logstream-cep.jar
 	@chmod a+x logstream-cep
