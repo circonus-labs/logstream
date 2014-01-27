@@ -69,7 +69,7 @@ install:	all install-dirs
 	$(INSTALL) -m 0644 log4j.xml $(DESTDIR)$(sysconfdir)/logstream-cep/log4j.xml
 	$(INSTALL) -m 0644 smf/logstream-cep.xml $(DESTDIR)$(sysconfdir)/smf/logstream-cep.xml
 	for type in hit.json event.json ; do \
-		$(INSTALL) -m 0644 ../samples/types/$$type $(DESTDIR)$(localstatedir)/logstream-cep/types/$$type ; \
+		$(INSTALL) -m 0644 samples/types/$$type $(DESTDIR)$(localstatedir)/logstream-cep/types/$$type ; \
 	done
 
 clean:
