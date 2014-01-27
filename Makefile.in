@@ -9,6 +9,7 @@ localstatedir=@localstatedir@
 JAVA=@JAVA@
 JAVAC=@JAVAC@
 JAR=@JAR@
+MAVEN=@MAVEN@
 JPARAMS=-g
 INSTALL=@INSTALL@
 NOBODY_USER=nobody
@@ -28,27 +29,40 @@ JAVAF=src/com/omniti/labs/logstream/logstream.java \
 	src/com/omniti/labs/logstream/EngineStatement.java \
 	src/com/omniti/labs/logstream/EngineType.java \
 	src/com/omniti/labs/logstream/EngineJSONUtil.java \
+	src/com/omniti/labs/logstream/Histogram.java \
 	src/com/omniti/labs/logstream/JSONDirectory.java \
 	src/com/omniti/labs/logstream/ManipulationHandler.java
 
-JARS=esper-4.1.0.jar \
-	jetty-servlet-7.2.2.v20101205.jar jetty-util-7.2.2.v20101205.jar \
-	jetty-server-7.2.2.v20101205.jar jetty-http-7.2.2.v20101205.jar \
-	jetty-io-7.2.2.v20101205.jar jetty-security-7.2.2.v20101205.jar \
-	jetty-continuation-7.2.2.v20101205.jar jackson-core-asl-1.8.3.jar \
-	rabbitmq-client-2.4.1.jar \
-	servlet-api-2.5.jar antlr-runtime-3.1.1.jar \
-	cglib-nodep-2.2.jar javassist-3.14.0.jar logstream-cep.jar
+L_JAVA = $(JAVAF:src/%=%)
+L_CLASS = $(L_JAVA:.java=*.class)
 
-CP=.:$(SHARED_DIR)/commons-logging-1.1.1.jar:../lib/esper-4.1.0.jar:../lib/jetty-servlet-7.2.2.v20101205.jar:../lib/jetty-util-7.2.2.v20101205.jar:../lib/jetty-server-7.2.2.v20101205.jar:../lib/jetty-continuation-7.2.2.v20101205.jar:../lib/jetty-io-7.2.2.v20101205.jar:../lib/jackson-core-asl-1.8.3.jar:$(SHARED_DIR)/log4j-1.2.15.jar:$(SHARED_DIR)/rabbitmq-client-2.4.1.jar:../lib/servlet-api-2.5.jar:../lib/javassist-3.14.0.jar:$(SHARED_DIR)/json.jar
+L_SUPPORT=lib/esper-4.11.0.jar \
+	lib/jetty-servlet-7.2.2.v20101205.jar lib/jetty-util-7.2.2.v20101205.jar \
+	lib/jetty-server-7.2.2.v20101205.jar lib/jetty-http-7.2.2.v20101205.jar \
+	lib/jetty-io-7.2.2.v20101205.jar lib/jetty-security-7.2.2.v20101205.jar \
+	lib/jetty-continuation-7.2.2.v20101205.jar lib/jackson-core-asl-1.8.3.jar \
+	lib/rabbitmq-client-2.4.1.jar lib/commons-logging-1.1.1.jar \
+	lib/log4j-1.2.15.jar \
+	lib/servlet-api-2.5.jar lib/antlr-runtime-3.1.1.jar \
+	lib/cglib-nodep-2.2.jar lib/javassist-3.14.0.jar lib/json.jar
 
-all:	lib/logstream-cep.jar
+CEPJAR=logstream-cep/target/logstream-cep-1.0-jar-with-dependencies.jar
+
+all:	$(CEPJAR)
 	@chmod a+x logstream-cep
 
-lib/logstream-cep.jar:	$(JAVAF)
-	test -d classes || mkdir classes
-	(cd src && $(JAVAC) $(JPARAMS) -cp $(CP) -d ../classes `find . -name \*.java`)
-	(cd classes && $(JAR) cf ../$@ com)
+lib/logstream.jar:	$(JAVAF)
+	@echo "- $@ compiling files"
+	@mkdir -p classes
+	(cd src && $(JAVAC) -Xlint:unchecked -g -cp ../`echo $(L_SUPPORT) | sed -e 's/ /:..\//g;'` -d ../classes $(L_JAVA))
+	@echo "- creating $@"
+	@(cd classes && $(JAR) cf ../$@ $(L_CLASS))
+
+$(CEPJAR):	lib/logstream.jar logstream-cep/pom.xml
+	@echo "- building a maven-like repo layout in lib"
+	@(cd lib && ./stub-as-maven.sh)
+	@echo "- building logstream-cep"
+	@(cd logstream-cep && $(MAVEN) compile assembly:single)
 
 install-dirs:
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
@@ -61,13 +75,11 @@ install-dirs:
 	chown $(NOBODY_USER) $(DESTDIR)$(localstatedir)/logstream-cep/queries
 
 install:	all install-dirs
-	$(INSTALL) -m 0755 logstream-cep $(DESTDIR)$(bindir)/logstream-cep
-	for file in $(JARS) ; do \
-		$(INSTALL) -m 0644 lib/$$file $(DESTDIR)$(libdir)/java/$$file ; \
-	done
-	$(INSTALL) -m 0644 logstream-cep.config $(DESTDIR)$(sysconfdir)/logstream-cep/logstream-cep.config.sample
+	$(INSTALL) -m 0755 logstream-cep/logstream-cep $(DESTDIR)$(bindir)/logstream-cep
+	$(INSTALL) -m 0644 logstream-cep/logstream-cep.config $(DESTDIR)$(sysconfdir)/logstream-cep/logstream-cep.config.sample
 	$(INSTALL) -m 0644 log4j.xml $(DESTDIR)$(sysconfdir)/logstream-cep/log4j.xml
 	$(INSTALL) -m 0644 smf/logstream-cep.xml $(DESTDIR)$(sysconfdir)/smf/logstream-cep.xml
+	$(INSTALL) -m 0644 $(CEPJAR) $(DESTDIR)$(libdir)/java/logstream-cep-1.0-jar-with-dependencies.jar
 	for type in hit.json event.json ; do \
 		$(INSTALL) -m 0644 samples/types/$$type $(DESTDIR)$(localstatedir)/logstream-cep/types/$$type ; \
 	done

@@ -7,6 +7,8 @@ AC_PATH_PROGS(JAVAC, javac)
 if test -z "$JAVAC" ; then AC_MSG_ERROR([*** javac required ***]); fi
 AC_PATH_PROGS(JAR, jar)
 if test -z "$JAR" ; then AC_MSG_ERROR([*** jar required ***]); fi
+AC_PATH_PROGS(MAVEN, mvn)
+if test -z "$MAVEN" ; then AC_MSG_ERROR([*** mvn required ***]); fi
 AC_PATH_PROGS(NODE, node)
 if test -z "$NODE" ; then AC_MSG_ERROR([*** node.js required ***]); fi
 
@@ -41,7 +43,7 @@ sysconfdir=`echo ${exp_sysconfdir} | sed "s~NONE~$SUBPREFIX~"`
 AC_OUTPUT([
 Makefile
 logstream-cep/Makefile
-logstream-cep/logstream-cep
+logstream-cep/logstream-cep/logstream-cep
 beacon-httpd/Makefile
 beacon-httpd/beacon-httpd
 ])

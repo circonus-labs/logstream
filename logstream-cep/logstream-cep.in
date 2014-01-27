@@ -1,0 +1,66 @@
+#!/bin/sh
+
+set -- `getopt l:c:P:fj:dD: $*`
+
+JAVA=@JAVA@
+# General stuff
+if [ -z "$JPARAMS_MEM" ]; then
+    JPARAMS_MEM="-Xms32m -Xmx512m"
+fi
+if [ -z "$JPARAMS_OPTS" ]; then
+    JPARAMS_OPTS="-Dfile.encoding=UTF8 -XX:+UseCompressedStrings"
+fi
+if [ -z "$JPARAMS_GC" ]; then
+    JPARAMS_GC="-XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
+fi
+if [ -z "$JPARAMS" ]; then
+    JPARAMS="$JPARAMS_MEM $JPARAMS_OPTS $JPARAMS_GC"
+fi
+JAR=@libdir@/java/logstream-cep-1.0-jar-with-dependencies.jar
+LOGFILE=/dev/null
+
+for i in $*
+do
+        case $i in
+    -l)    LOGFILE=$2
+        shift 2
+        ;;
+
+    -c)    CONF=$2
+        shift 2
+        ;;
+
+    -P)    PIDFILE=$2
+        shift 2
+        ;;
+
+    -f)
+        FOREGROUND=1
+        shift
+        ;;
+
+    --)     shift; break;;
+    esac
+done
+
+if [ -z "$CONF" ]; then
+    CONF=$1
+fi
+if [ -z "$CONF" ]; then
+    CONF=@sysconfdir@/logstream-cep/logstream-cep.config
+fi
+
+CP=
+
+if [ "$DEBUG" = "1" ]; then
+    exec $JAVA $JPARAMS -jar $JAR $CONF
+elif [ "$FOREGROUND" = "1" ]; then
+    $JAVA $JPARAMS -jar $JAR $CONF
+else
+    $JAVA $JPARAMS -jar $JAR $CONF < /dev/null > $LOGFILE 2>&1 &
+    PID=$!
+    if [ -n "$PIDFILE" ]; then
+        echo $PID > $PIDFILE
+    fi
+fi
+

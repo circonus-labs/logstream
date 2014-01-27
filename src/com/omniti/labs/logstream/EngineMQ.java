@@ -35,7 +35,9 @@ public class EngineMQ {
     hosts = host.split(",");
     factory = new ConnectionFactory[hosts.length];
     for(int i = 0; i < hosts.length; i++) {
-      hosts[i] = hosts[i].replace("\"", ""); //.replace("\"]?$", "");
+      hosts[i] = hosts[i].replace("\"", "");
+      if(hosts[i].startsWith("[")) hosts[i] = hosts[i].substring(1);
+      if(hosts[i].endsWith("]")) hosts[i] = hosts[i].substring(0, hosts[i].length()-1);
       factory[i] = new ConnectionFactory();
       factory[i].setHost(hosts[i]);
       factory[i].setPort(port);
