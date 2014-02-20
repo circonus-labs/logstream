@@ -1,3 +1,6 @@
+/* Copyright 2012-2014 Circonus, Inc. All rights reserved. */
+/* This program released under the terms of the GPLv2 */
+
 package com.omniti.labs.logstream;
 
 import org.eclipse.jetty.server.Handler;
