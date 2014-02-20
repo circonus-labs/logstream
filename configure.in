@@ -9,8 +9,6 @@ AC_PATH_PROGS(JAR, jar)
 if test -z "$JAR" ; then AC_MSG_ERROR([*** jar required ***]); fi
 AC_PATH_PROGS(MAVEN, mvn)
 if test -z "$MAVEN" ; then AC_MSG_ERROR([*** mvn required ***]); fi
-AC_PATH_PROGS(NODE, node)
-if test -z "$NODE" ; then AC_MSG_ERROR([*** node.js required ***]); fi
 
 SUBPREFIX="$prefix"
 if test "x$prefix" = "xNONE"; then
@@ -42,11 +40,7 @@ sysconfdir=`echo ${exp_sysconfdir} | sed "s~NONE~$SUBPREFIX~"`
 
 AC_OUTPUT([
 Makefile
-logstream-cep/Makefile
-logstream-cep/logstream-cep/logstream-cep
-beacon-httpd/Makefile
-beacon-httpd/beacon-httpd
+logstream-cep/logstream-cep
 ])
 
 chmod a+x logstream-cep/logstream-cep
-chmod a+x beacon-httpd/beacon-httpd
