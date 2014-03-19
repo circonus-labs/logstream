@@ -57,6 +57,8 @@ lib/logstream.jar:	$(JAVAF)
 	(cd src && $(JAVAC) -Xlint:unchecked -g -cp ../`echo $(L_SUPPORT) | sed -e 's/ /:..\//g;'` -d ../classes $(L_JAVA))
 	@echo "- creating $@"
 	@(cd classes && $(JAR) cf ../$@ $(L_CLASS))
+	@rm -f ~/.m2/repository/logstream/logstream/0.1/logstream-0.1.jar
+	@rm -f $(CEPJAR)
 
 $(CEPJAR):	lib/logstream.jar logstream-cep/pom.xml
 	@echo "- building a maven-like repo layout in lib"
