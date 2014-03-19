@@ -45,6 +45,10 @@ public class JSONDirectory {
   }
   private void readAll(File d) {
     File files[] = d.listFiles(filter(".json"));
+    if(files == null) {
+      logger.error("Cannot read directory: " + d.getPath());
+      System.exit(-1);
+    }
     objects = new HashMap<String,JSONObject>();
     int nobj = 0;
     for (File file : files) {
