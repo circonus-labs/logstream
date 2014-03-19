@@ -9,10 +9,11 @@ import javassist.*;
 
 public class EngineType {
   private Class type;
+  private String name;
   private String validatefunc;
   private Constructor<Object> con;
-  EngineType(Class t, String f) {
-    type = t; validatefunc = f;
+  EngineType(Class t, String n, String f) {
+    type = t; validatefunc = f; name = n;
     con = null;
     try {
       con = type.getDeclaredConstructor( new Class[] { String.class } );
@@ -20,6 +21,7 @@ public class EngineType {
     catch(java.lang.NoSuchMethodException nsme) { }
   }
   public Class getType() { return type; }
+  public String getName() { return name; }
   public String getValidate() { return validatefunc; }
   public Object makeValue(String in) {
     Object r = null;

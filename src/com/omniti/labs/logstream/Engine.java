@@ -164,10 +164,12 @@ public class Engine {
       String cname = e.getValue().getType().getName();
       cname = cname.substring(cname.lastIndexOf(".")+1);
       String validatefunc = e.getValue().getValidate();
+      String altname = e.getValue().getName();
       try { 
         JSONObject et = new JSONObject();
         et.put("type", cname);
         if(validatefunc != null) et.put("validate", validatefunc);
+        if(altname != null) et.put("name", altname);
         o.put(e.getKey(), et);
       }
       catch (JSONException jsone) { }

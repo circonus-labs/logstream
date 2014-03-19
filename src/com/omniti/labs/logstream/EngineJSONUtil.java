@@ -29,17 +29,18 @@ public class EngineJSONUtil {
       JSONObject d = o.getJSONObject(key);
       String type = d.getString("type");
       String func = d.optString("validate", null);
+      String name = d.optString("name", null);
       if(type == null) {
         throw new JSONException("Unsupported type for key " + key);
       }
       if(type.equals("String")) {
-        typemap.put(key, new EngineType(String.class, func));
+        typemap.put(key, new EngineType(String.class, name, func));
       } else if(type.equals("Double")) {
-        typemap.put(key, new EngineType(Double.class, func));
+        typemap.put(key, new EngineType(Double.class, name, func));
       } else if(type.equals("Long")) {
-        typemap.put(key, new EngineType(Long.class, func));
+        typemap.put(key, new EngineType(Long.class, name, func));
       } else if(type.equals("Integer")) {
-        typemap.put(key, new EngineType(Long.class, func)); /* we just up-convert */
+        typemap.put(key, new EngineType(Long.class, name, func)); /* we just up-convert */
       } else {
         throw new JSONException("Unsupported type " + type + " for key " + key);
       }
