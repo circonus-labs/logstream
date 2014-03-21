@@ -160,10 +160,6 @@
 
   <repositories>
     <repository>
-      <id>clojars.org</id>
-      <url>http://clojars.org/repo</url>
-    </repository>
-    <repository>
         <id>logstream-src-repo</id>
         <url>file://${project.basedir}/../lib</url>
         <releases>

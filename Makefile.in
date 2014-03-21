@@ -64,7 +64,7 @@ $(CEPJAR):	lib/logstream.jar logstream-cep/pom.xml
 	@echo "- building a maven-like repo layout in lib"
 	@(cd lib && ./stub-as-maven.sh)
 	@echo "- building logstream-cep"
-	@(cd logstream-cep && $(MAVEN) compile assembly:single)
+	@(cd logstream-cep && $(MAVEN) assembly:single)
 
 install-dirs:
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(bindir)
@@ -87,5 +87,6 @@ install:	all install-dirs
 	done
 
 clean:
+	(cd logstream-cep && $(MAVEN) clean)
 	rm -f lib/logstream-cep.jar
 	rm -rf classes
