@@ -8,7 +8,7 @@
       <service_fmri value='svc:/milestone/network:default'/>
     </dependency>
     <dependency name='config-file' grouping='require_all' restart_on='refresh' type='path'>
-      <service_fmri value='file://localhost/opt/circonus/etc/logstream-cep.config'/>
+      <service_fmri value='file://localhost/opt/circonus/etc/logstream-cep/logstream-cep.config'/>
     </dependency>
     <dependency name='logstream-cep_multi-user-server' grouping='require_all' restart_on='none' type='service'>
       <service_fmri value='svc:/milestone/multi-user-server'/>
