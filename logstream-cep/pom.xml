@@ -132,6 +132,11 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>fqclient</groupId>
+      <artifactId>fqclient</artifactId>
+      <version>0.0.1</version>
+    </dependency>
+    <dependency>
       <groupId>servlet-api</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.5</version>

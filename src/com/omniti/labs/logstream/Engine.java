@@ -33,6 +33,7 @@ public class Engine {
   private HashMap<String,Class> typeclasses;
   private LinkedBlockingQueue<EngineOutput> queue;
   private EngineMQ enginemq;
+  private EngineFQ enginefq;
   static Logger logger = Logger.getLogger(Engine.class.getName());
 
   public class Catcher implements UnmatchedListener {
@@ -83,6 +84,17 @@ public class Engine {
         while(true) {
           EngineOutput o = getOutput();
           enginemq.publish(o);
+        }
+      }
+    }).start();
+  }
+  public void setEngineFQ(EngineFQ fq) {
+    enginefq = fq;
+    (new Thread() {
+      public void run() {
+        while(true) {
+          EngineOutput o = getOutput();
+          enginefq.publish(o);
         }
       }
     }).start();

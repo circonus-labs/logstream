@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import com.omniti.labs.logstream.Engine;
 import com.omniti.labs.logstream.EngineMQ;
+import com.omniti.labs.logstream.EngineFQ;
 import com.omniti.labs.logstream.EngineJSONUtil;
 import com.omniti.labs.logstream.JSONDirectory;
 import org.apache.log4j.BasicConfigurator;
@@ -29,6 +30,9 @@ public class logstream {
 
   public void setupMQ(Map<String,String> config) {
     engine.setEngineMQ(new EngineMQ(config));
+  }
+  public void setupFQ(Map<String,String> config) {
+    engine.setEngineFQ(new EngineFQ(config));
   }
   public void loadTypes(String f) {
     JSONDirectory jd = new JSONDirectory(f);
@@ -82,6 +86,8 @@ public class logstream {
       ls.loadQueries(config.getString("querydir"));
       if(config.has("mq"))
         ls.setupMQ(EngineJSONUtil.convertJSONtoDict(config.getJSONObject("mq")));
+      if(config.has("fq"))
+        ls.setupFQ(EngineJSONUtil.convertJSONtoDict(config.getJSONObject("fq")));
       ls.start(config);
     }
     catch (Exception e) { e.printStackTrace(); System.exit(1); }

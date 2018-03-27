@@ -8,7 +8,7 @@ if [ -z "$JPARAMS_MEM" ]; then
     JPARAMS_MEM="-Xms32m -Xmx512m"
 fi
 if [ -z "$JPARAMS_OPTS" ]; then
-    JPARAMS_OPTS="-Dfile.encoding=UTF8 -XX:+UseCompressedStrings"
+    JPARAMS_OPTS="-Dfile.encoding=UTF8"
 fi
 if [ -z "$JPARAMS_GC" ]; then
     JPARAMS_GC="-XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
